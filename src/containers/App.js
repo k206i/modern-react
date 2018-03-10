@@ -1,8 +1,16 @@
 import React, { Component } from 'react';
-import './App.css';
-import Person from './Person/Person';
+import classes from './App.css';
+import Persons from '../components/Persons/Persons';
+import Cockpit from '../components/Cockpit/Cockpit';
+import Aux from '../hoc/Aux';
+import withClass from '../hoc/withClass';
 
 class App extends Component {
+
+  componentWillMount() {
+
+  }
+
   state = {
     persons: [
       { id: '123', name: 'Max', age: 28 },
@@ -10,6 +18,7 @@ class App extends Component {
       { id: 'asd', name: 'Julia', age: 35 },
     ],
     showPersons: false,
+    toggleClicked: 0,
   };
 
   switchNameHandler = (newName) => {
@@ -54,68 +63,39 @@ class App extends Component {
   };
 
   togglePersonsHandler = () => {
-    this.setState({
-      showPersons: !this.state.showPersons,
-    })
+    this.setState((prevState, props) => {
+      return {
+        showPersons: !this.state.showPersons,
+        toggleClicked: prevState.toggleClicked + 1,
+      }
+    });
   };
 
   render() {
-    const style = {
-      backgroundColor: 'green',
-      color: '#fff',
-      font: 'inherit',
-      border: '1px solid blue',
-      padding: '8px',
-      cursor: 'pointer',
-    };
-
     let persons = null;
+
     if (this.state.showPersons) {
       persons = (
-        <div>
-          {this.state.persons.map((person, index) => {
-            return (
-              <Person
-                click={() => this.deletePersonHandler(index)}
-                name={person.name}
-                age={person.age}
-                key={person.id}
-                change={(event) => this.nameChangedHandler(event, person.id)}
-              />
-            );
-          })}
-        </div>
+        <Persons
+          persons={this.state.persons}
+          clicked={this.deletePersonHandler}
+          changed={this.nameChangedHandler}
+        />
       );
-
-      style.backgroundColor = 'red';
-    }
-
-    const classes = [];
-    if (this.state.persons.length <= 2) {
-      classes.push('red');
-    }
-    if (this.state.persons.length <= 1) {
-      classes.push('bold');
     }
 
     return (
-      <div className='App'>
-        <h1>
-          React App
-        </h1>
-        <p className={classes.join(' ')}>
-          Cool!!
-        </p>
-        <button
-          style={style}
-          onClick={this.togglePersonsHandler}
-        >
-          Switch name
-        </button>
+      <Aux>
+        <Cockpit
+          showPersons={this.state.showPersons}
+          persons={this.state.persons}
+          clicked={this.togglePersonsHandler}
+          title={this.props.appTitle}
+        />
         {persons}
-      </div>
+      </Aux>
     );
   }
 }
 
-export default App;
+export default withClass(App, classes.App);
